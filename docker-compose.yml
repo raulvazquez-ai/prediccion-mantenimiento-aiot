@@ -1,0 +1,80 @@
+# PIC 2025/2026 · E2 Stack — Motor Industrial
+# docker-compose up  →  levanta todo el pipeline
+# El simulador se lanza aparte: python simulador_e2.py
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: e2-mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: e2-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: picpass2026
+      DOCKER_INFLUXDB_INIT_ORG: pic
+      DOCKER_INFLUXDB_INIT_BUCKET: motor
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: e2-token-pic-2026
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: e2-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: pic2026
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+
+  ingestor:
+    build:
+      context: .
+      dockerfile: Dockerfile.ingestor
+    container_name: e2-ingestor
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: e2-token-pic-2026
+      INFLUXDB_ORG: pic
+      INFLUXDB_BUCKET: motor
+    depends_on:
+      - mosquitto
+      - influxdb
+    restart: unless-stopped
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    container_name: e2-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/home/jovyan/work
+    working_dir: /home/jovyan/work
+    environment:
+      JUPYTER_TOKEN: "pic2026"
+    restart: unless-stopped
+
+volumes:
+  influxdb-data:
+  grafana-data:

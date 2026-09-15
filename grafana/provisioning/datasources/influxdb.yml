@@ -1,0 +1,14 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-E2
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: pic
+      defaultBucket: motor
+    secureJsonData:
+      token: e2-token-pic-2026
+    isDefault: true

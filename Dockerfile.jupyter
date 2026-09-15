@@ -1,0 +1,19 @@
+FROM python:3.10-slim-bullseye
+
+# Instalamos dependencias básicas del sistema requeridas para IA (igual que en la P13)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libhdf5-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiamos las dependencias
+COPY requirements.txt /tmp/requirements.txt
+
+# Instalamos Jupyter manualmente y luego tus librerías
+RUN pip install --no-cache-dir jupyter notebook && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
+WORKDIR /home/jovyan/work
+
+# Comando de arranque directo
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--NotebookApp.token=pic2026"]
