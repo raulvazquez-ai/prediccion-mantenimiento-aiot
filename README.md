@@ -175,3 +175,5 @@ Pero al realizar las pruebas empíricas del notebook `Demostracion_T2_T3_T4.ipyn
 Ejemplo de error: *ERROR: Could not find a version that satisfies the requirement tensorflow<2.11*
 
 Debido a bastantes errores de versiones incompatibles, para facilitar la ejecución del notebook decidimos automatizar el entorno del notebook usando el archivo docker y añadiendo las librerías que faltaban en `requirements.txt` para garantizar que no suceda ningún error al ejecutar el notebook y además que este se cree de manera automática y para ello tuvimos que añadir el nuevo archivo docker que aparece en esta entrega `Dockerfile.jupyter`, creando así el entorno correcto.
+
+NOTA SOBRE LOS MODELOS: Por restricciones de tamaño de GitHub, el modelo preentrenado de la Tarea 3 (RF ONNX) no está incluido en este repositorio. Para ejecutar la simulación completa, descárgalo desde https://drive.google.com/file/d/178f7RJydmDEaRFmXE_MlH8-mmqiVn5LO/view?usp=drive_link y colócalo dentro de la carpeta /models.
